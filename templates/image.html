@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{query}}</title>
+    <link
+      rel="stylesheet"
+      href="{{url_for('static', filename='css/main.css')}}"
+    />
+    <link
+      rel="search"
+      href="search_engine.xml"
+      type="application/opensearchdescription+xml"
+      title="Xrch"
+    />
+    <meta
+      name="description"
+      content="A simple and fast search engine. Most of them track you, but we don't. We don't even have a database."
+    />
+  </head>
+
+  <body>
+    <a href="/" id="ddg-logo-container"
+      ><img
+        src="{{url_for('static', filename='assets/logo.png')}}"
+        alt="Xrch"
+        id="ddg-logo-search"
+    /></a>
+    <form action="i" style="display: inline">
+      <input
+        type="text"
+        name="q"
+        placeholder="Enter a search term"
+        value="{{query}}"
+      />
+      <input type="submit" value="search" class="material-icons" />
+    </form>
+    <br />
+    <p id="search-details">
+      About {{results_amount}} results, took {{time_took}}s, sent via
+      <a
+        href="https://codetabs.com/ip-geolocation/ip-geolocation.html?q={{ip}}"
+        target="_blank"
+        >{{ip}}</a
+      >, <a href="imageapi?q={{query_encoded}}" target="_blank">Open in API</a>
+    </p>
+    <p id="search-types">
+      <a href="s?q={{query_encoded}}">Web</a>
+      <a href="i?q={{query_encoded}}">Images</a>
+    </p>
+    <table id="results">
+      {% for row in results %}
+      <tr>
+        {% for result in row %}
+        <td>
+          <a href="{{result.url}}" class="image-link"
+            ><img src="{{result.url}}" alt=""
+          /></a>
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>

@@ -221,4 +221,4 @@ def __favicon():
     return send_from_directory(".", "favicon.ico", mimetype="image/vnd.microsoft.icon")
 
 
-app.run(host="0.0.0.0", port=5000, debug=True)
+app.run(host="0.0.0.0", port=5000)

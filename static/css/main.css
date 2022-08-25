@@ -92,6 +92,7 @@ input {
   margin-right: 0.5rem;
   height: 2rem;
   vertical-align: middle;
+  margin-top: -2px;
 }
 
 .result-container {

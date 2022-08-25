@@ -7,9 +7,16 @@ import flask_cors as cors
 import json
 import logging
 import wikipedia as wp
+from autocorrect import Speller
 
 log = logging.getLogger('werkzeug')
 log.disabled = True
+
+
+def spell_check(query):
+    spell = Speller(lang="en")
+    return " ".join(map(spell, query.split(" ")))
+
 
 headers = {
     "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36"}
@@ -81,11 +88,16 @@ def search_engine():
 def api():
     now = time.time()
     q = request.args.get("q")
-    url = f"https://www.bing.com/search?q={q}"
+    page = 0
+    if "p" in request.args:
+        page = int(request.args.get("p"))
+    page_as_first = page * 10 + 1
+    url = f"https://www.bing.com/search?q=%2B{urlencode(q)}&first={page_as_first}"
     res = rq.get(url, headers=headers)
     soup = BeautifulSoup(res.text, "html.parser")
-    results = []
     results2 = []
+    corrected = spell_check(q)
+    misspelled = corrected != q
     for link in soup.find_all("li", class_="b_algo"):
         url = link.find("h2").find("a")
         url = url.get("href")
@@ -95,12 +107,10 @@ def api():
                 "div", class_="b_caption").find("p").text
         except (TypeError, AttributeError):
             snippet = "No snippet available."
-        results2.append({"url": url, "title": title, "snippet": snippet})
-    for result in results2:
-        if result["url"].startswith("/"):
-            pass
-        else:
-            results.append(result)
+        results2.append({"url": url, "title": title, "snippet": snippet,
+                        "favicon": f"https://www.google.com/s2/favicons?domain={urlparse(url).netloc}"})
+    results = [x for x in results2 if not x["url"].startswith(
+        "/") ^ x["url"].startswith("//")]
     api_output = {
         "query": q,
         "results": results,
@@ -110,6 +120,14 @@ def api():
             "ip": get_ip(),
             "location": f"https://codetabs.com/ip-geolocation/ip-geolocation.html?q={get_ip()}"
         },
+        "typo": {
+            "has_typo": misspelled,
+            "corrected": corrected
+        },
+        "page": {
+            "as_bing_first": page_as_first,
+            "as_page": page
+        }
     }
     wikipedia = get_wikipedia(q)
     if wikipedia["success"]:
@@ -122,7 +140,7 @@ def api():
 def imageapi():
     now = time.time()
     q = request.args.get("q")
-    url = f"https://www.bing.com/images/search?q={urlencode(q)}&first=1&tsc=ImageHoverTitle"
+    url = f"https://www.bing.com/images/search?q=%2B{urlencode(q)}&first=1&tsc=ImageHoverTitle"
     res = rq.get(url, headers=headers)
     soup = BeautifulSoup(res.text, "html.parser")
     results = []
@@ -147,10 +165,15 @@ def imageapi():
 def search():
     now = time.time()
     q = request.args.get("q")
-    url = f"https://www.bing.com/search?q={q}"
+    page = 0
+    if "p" in request.args:
+        page = int(request.args.get("p"))
+    page_as_first = page * 10 + 1
+    url = f"https://www.bing.com/search?q=%2B{urlencode(q)}&first={page_as_first}"
+    corrected = spell_check(q)
+    misspelled = corrected != q
     res = rq.get(url, headers=headers)
     soup = BeautifulSoup(res.text, "html.parser")
-    results = []
     results2 = []
     for link in soup.find_all("li", class_="b_algo"):
         url = link.find("h2").find("a")
@@ -163,22 +186,19 @@ def search():
                 "div", class_="b_caption").find("p").text
         except (TypeError, AttributeError):
             snippet = "No snippet available."
-        results2.append({"url": f"hq?w={urlencode(url)}", "favicon_url": _favicon, "title": title,
+        results2.append({"url": f"hq?w={urlencode(url)}", "unsafe_url": url, "favicon_url": _favicon, "title": title,
                          "snippet": snippet, "breadcrumbs": breadcrumbs})
-    for result in results2:
-        if result["url"].startswith("/"):
-            pass
-        else:
-            results.append(result)
+    results = [x for x in results2 if not x["unsafe_url"].startswith(
+        "/") ^ x["unsafe_url"].startswith("//")]
     wikipedia = get_wikipedia(q)
-    return render_template("search.html", results=results, query=q, results_amount='{:,}'.format(len(results)), time_took=round(time.time() - now, 2), ip=get_ip(), query_encoded=urlencode(q), wikipedia=wikipedia)
+    return render_template("search.html", results=results, query=q, results_amount='{:,}'.format(len(results)), time_took=round(time.time() - now, 2), ip=get_ip(), query_encoded=urlencode(q), wikipedia=wikipedia, typo={"has_typo": misspelled, "corrected": corrected, "corrected_encoded": urlencode(corrected)}, page=page)
 
 
 @app.route("/i")
 def image_search():
     now = time.time()
     q = request.args.get("q")
-    url = f"https://www.bing.com/images/search?q={urlencode(q)}&first=1&tsc=ImageHoverTitle"
+    url = f"https://www.bing.com/images/search?q=%2B{urlencode(q)}&first=1&tsc=ImageHoverTitle"
     res = rq.get(url, headers=headers)
     soup = BeautifulSoup(res.text, "html.parser")
     results = []
@@ -201,4 +221,4 @@ def __favicon():
     return send_from_directory(".", "favicon.ico", mimetype="image/vnd.microsoft.icon")
 
 
-app.run(debug=True, host="0.0.0.0")
+app.run(host="0.0.0.0", port=5000, debug=True)

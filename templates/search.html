@@ -16,6 +16,7 @@
       id="ddg-logo-search"></a>
   <form action="s" style="display: inline">
     <input type="text" name="q" placeholder="Enter a search term" value="{{query}}" />
+    <input type="hidden" name="p" value="0" />
     <input type="submit" value="search" class="material-icons" />
   </form>
   <br />
@@ -26,9 +27,12 @@
       href="api?q={{query_encoded}}" target="_blank">Open in API</a>
   </p>
   <p id="search-types">
-    <a href="s?q={{query_encoded}}">Web</a>
+    <a href="s?q={{query_encoded}}&p=0">Web</a>
     <a href="i?q={{query_encoded}}">Images</a>
   </p>
+  {% if typo.has_typo %}
+    <p>Did you mean <a href="s?q={{typo.corrected_encoded}}&p=0"><strong>{{typo.corrected}}</strong></a>?</p>
+  {% endif %}
   <div id="results">
     {% if wikipedia.success %}
       <p class="wikipedia">{{wikipedia.summary}}</p>
@@ -44,7 +48,11 @@
     </div>
     {% endfor %}
   </div>
-
+  <br>
+  <div>
+    <a href="s?q={{query_encoded}}&p={{ page - 1 }}">Previous page</a>
+    <a href="s?q={{query_encoded}}&p={{ page + 1 }}">Next page</a>
+  </div>
   </body>
 
 </html>

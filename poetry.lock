@@ -1,4 +1,12 @@
 [[package]]
+name = "autocorrect"
+version = "2.6.1"
+description = "Spelling Corrector"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "beautifulsoup4"
 version = "4.11.1"
 description = "Screen-scraping library"
@@ -235,9 +243,10 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "9cb9aa9e956fee3aebaad481582cd75747b7b62efa1fd5da1ec8dd5bea47830f"
+content-hash = "6dc7e61a8209d3220032ae0db2cc2951210d69a32a3e7a84bcabe216d62eac2c"
 
 [metadata.files]
+autocorrect = []
 beautifulsoup4 = []
 bs4 = []
 certifi = []

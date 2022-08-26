@@ -33,7 +33,7 @@ jobs:
           pip install -r requirements.txt
           
       - name: Lint
-        run: pylint main.py
+        run: pylint -E main.py
 
       #- name: Test API
         #run: |

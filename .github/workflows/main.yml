@@ -26,16 +26,22 @@ jobs:
       - uses: actions/checkout@v3
 
 
-      - name: Install dependencies
-        run: |
-          sudo apt install jq
-          pip install pylint
-          pip install -r requirements.txt
-          
-      - name: Lint
+      - name: Lint Python code
         run: pylint -E main.py
 
-      #- name: Test API
-        #run: |
-          #python main.py &
-          
+      - name: Test API
+        run: |
+          python main.py &
+          sleep 3
+          curl "http://localhost:5000/api?q=test&p=0" > query.tmp
+          jq '.results[0].url' < query.tmp
+          jq '.results[0].title' < query.tmp
+          jq '.results[0].snippet' < query.tmp
+          jq '.results[0].favicon' < query.tmp
+          jq '.time_took' < query.tmp
+          jq '.query' < query.tmp
+          jq '.page.as_bing_first' < query.tmp
+          jq '.page.as_page' < query.tmp
+          jq '.amount' < query.tmp
+          jq '.typo.corrected' < query.tmp
+          jq '.typo.has_typo' < query.tmp

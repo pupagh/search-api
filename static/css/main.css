@@ -50,14 +50,14 @@ a:visited {
 body {
   font-family: sans-serif;
   background-color: var(--white);
-  font-family: "Roboto", sans-serif;
+  font-family: "Fira", sans-serif;
 }
 
 h1,
 h2,
 h3,
 h4 {
-  font-family: "Roboto", sans-serif;
+  font-family: "Fira", sans-serif;
 }
 
 input {
@@ -66,7 +66,7 @@ input {
   font-size: 1rem;
   border: none;
   background-color: var(--entry-color);
-  font-family: "Roboto", sans-serif;
+  font-family: "Fira", sans-serif;
 }
 
 .homepage-container {

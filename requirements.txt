@@ -5,3 +5,4 @@ urllib3
 flask_cors
 wikipedia
 autocorrect
+simpleeval

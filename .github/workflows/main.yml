@@ -48,3 +48,4 @@ jobs:
           jq '.amount' < query.tmp
           jq '.typo.corrected' < query.tmp
           jq '.typo.has_typo' < query.tmp
+          jq '.calculated' < query.tmp

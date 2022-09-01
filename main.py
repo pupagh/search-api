@@ -8,6 +8,7 @@ import json
 import logging
 import wikipedia as wp
 from autocorrect import Speller
+from simpleeval import simple_eval
 
 log = logging.getLogger('werkzeug')
 log.disabled = True
@@ -132,6 +133,10 @@ def api():
     wikipedia = get_wikipedia(q)
     if wikipedia["success"]:
         api_output["wikipedia"] = wikipedia["summary"]
+    try:
+      api_output["calculated"] = simple_eval(q)
+    except:
+      pass
     return jsonify(api_output)
 
 
@@ -165,6 +170,11 @@ def imageapi():
 def search():
     now = time.time()
     q = request.args.get("q")
+    calculated = False
+    try:
+      calculated = simple_eval(q)
+    except:
+      pass
     page = 0
     if "p" in request.args:
         page = int(request.args.get("p"))
@@ -191,7 +201,7 @@ def search():
     results = [x for x in results2 if not x["unsafe_url"].startswith(
         "/") ^ x["unsafe_url"].startswith("//")]
     wikipedia = get_wikipedia(q)
-    return render_template("search.html", results=results, query=q, results_amount='{:,}'.format(len(results)), time_took=round(time.time() - now, 2), ip=get_ip(), query_encoded=urlencode(q), wikipedia=wikipedia, typo={"has_typo": misspelled, "corrected": corrected, "corrected_encoded": urlencode(corrected)}, page=page)
+    return render_template("search.html", results=results, query=q, results_amount='{:,}'.format(len(results)), time_took=round(time.time() - now, 2), ip=get_ip(), query_encoded=urlencode(q), wikipedia=wikipedia, typo={"has_typo": misspelled, "corrected": corrected, "corrected_encoded": urlencode(corrected)}, page=page, calculated=calculated)
 
 
 @app.route("/i")

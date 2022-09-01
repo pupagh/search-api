@@ -34,6 +34,10 @@
     <p>Did you mean <a href="s?q={{typo.corrected_encoded}}&p=0"><strong>{{typo.corrected}}</strong></a>?</p>
   {% endif %}
   <div id="results">
+    {% if calculated %}
+      <h2>{{calculated}}</h2>
+      <hr>
+    {% endif %}
     {% if wikipedia.success %}
       <p class="wikipedia">{{wikipedia.summary}}</p>
       <hr>

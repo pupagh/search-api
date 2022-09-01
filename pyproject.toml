@@ -12,6 +12,7 @@ bs4 = "^0.0.1"
 Flask = "^2.2.2"
 Flask-Cors = "^3.0.10"
 autocorrect = "^2.6.1"
+simpleeval = "^0.9.12"
 
 [tool.poetry.dev-dependencies]
 

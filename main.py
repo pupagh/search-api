@@ -1,3 +1,4 @@
+from ipaddress import ip_address
 from operator import ge
 from flask import *
 import requests as rq
@@ -25,7 +26,7 @@ headers = {
 def tineye(imageFile):
     generated_ip = socket.inet_ntoa(
         struct.pack('>I', random.randint(1, 0xffffffff)))
-    _headers = headers | {
+    _headers = {**headers, **{
         "X-Originating-IP": generated_ip,
         "X-Forwarded-For": generated_ip,
         "X-Remote-IP": generated_ip,
@@ -33,10 +34,10 @@ def tineye(imageFile):
         "X-Client-IP": generated_ip,
         "X-Host": generated_ip,
         "X-Forwared-Host": generated_ip
-    }
+    }}
     r = rq.post(
         "https://tineye.com/result_json/?sort=score&order=desc", headers=_headers, files={"image": imageFile})
-    return r.json()
+    return (r.json(), generated_ip)
 
 
 def spell_check(query):
@@ -252,7 +253,7 @@ def reverse_image_search_home():
 def reverse_image_search():
     now = time.time()
     f = request.files.get("image")
-    api = tineye(f)
+    api, ip_address = tineye(f)
     if not api.get("matches"):
         return """
         <!DOCTYPE html>
@@ -276,7 +277,36 @@ def reverse_image_search():
                for i in api["matches"]]
     truelen = len(results)
     results = [results[i:i+4] for i in range(0, len(results), 4)]
-    return render_template("image.html", results=results, query="", results_amount='{:,}'.format(truelen), time_took=round(time.time() - now, 2), ip=get_ip(), query_encoded="")
+    return render_template("image.html", results=results, query="", results_amount='{:,}'.format(truelen), time_took=round(time.time() - now, 2), ip=ip_address, query_encoded="")
+
+
+@app.route("/riapi", methods=["POST"])
+def reverse_image_search_api():
+    now = time.time()
+    f = request.files.get("image")
+    api, ip_address = tineye(f)
+    if not api.get("matches"):
+        return jsonify({
+            "results": [],
+            "time_took": time.time() - now,
+            "amount": 0,
+            "sent_via": {
+                "ip": ip_address,
+                "location": f"https://codetabs.com/ip-geolocation/ip-geolocation.html?q={ip_address}"
+            }
+        })
+    results = [{"url": i['domains'][0]['backlinks'][0]['url']}
+               for i in api["matches"]]
+    api_output = {
+        "results": results,
+        "time_took": time.time() - now,
+        "amount": len(results),
+        "sent_via": {
+            "ip": ip_address,
+            "location": f"https://codetabs.com/ip-geolocation/ip-geolocation.html?q={ip_address}"
+        }
+    }
+    return jsonify(api_output)
 
 
 @app.route("/about")

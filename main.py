@@ -241,7 +241,7 @@ def image_search():
         results.append({"url": f"si?w={urlencode(murl)}"})
     truelen = len(results)
     results = [results[i:i+4] for i in range(0, len(results), 4)]
-    return render_template("image.html", results=results, query=q, results_amount='{:,}'.format(truelen), time_took=round(time.time() - now, 2), ip=get_ip(), query_encoded=urlencode(q))
+    return render_template("image.html", results=results, query=q, results_amount='{:,}'.format(truelen), time_took=round(time.time() - now, 2), ip=get_ip(), query_encoded=urlencode(q), classic=True)
 
 
 @app.route("/rip")
@@ -277,7 +277,7 @@ def reverse_image_search():
                for i in api["matches"]]
     truelen = len(results)
     results = [results[i:i+4] for i in range(0, len(results), 4)]
-    return render_template("image.html", results=results, query="", results_amount='{:,}'.format(truelen), time_took=round(time.time() - now, 2), ip=ip_address, query_encoded="")
+    return render_template("image.html", results=results, query="", results_amount='{:,}'.format(truelen), time_took=round(time.time() - now, 2), ip=ip_address, query_encoded="", classic=False)
 
 
 @app.route("/riapi", methods=["POST"])

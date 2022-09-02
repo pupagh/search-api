@@ -40,14 +40,14 @@
       <input type="submit" class="search-icon material-icons" value="search" />
     </form>
     <br />
+    <!-- prettier-ignore -->
     <p id="search-details">
       About {{results_amount}} results, took {{time_took}}s, sent via
       <a
         href="https://codetabs.com/ip-geolocation/ip-geolocation.html?q={{ip}}"
         target="_blank"
         >{{ip}}</a
-      >,
-      <a href="imageapi?q={{query_encoded}}&p=0" target="_blank">Open in API</a>
+      >{% if classic %}, <a href="imageapi?q={{query_encoded}}&p=0" target="_blank">Open in API</a> {% endif %}
     </p>
     <p id="search-types">
       <a href="s?q={{query_encoded}}&p=0">Web</a>

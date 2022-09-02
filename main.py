@@ -1,3 +1,4 @@
+from operator import ge
 from flask import *
 import requests as rq
 from bs4 import BeautifulSoup
@@ -9,18 +10,39 @@ import logging
 import wikipedia as wp
 from autocorrect import Speller
 from simpleeval import simple_eval
+import random
+import socket
+import struct
+import io
 
 log = logging.getLogger('werkzeug')
 log.disabled = True
+
+headers = {
+    "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36"}
+
+
+def tineye(imageFile):
+    generated_ip = socket.inet_ntoa(
+        struct.pack('>I', random.randint(1, 0xffffffff)))
+    _headers = headers | {
+        "X-Originating-IP": generated_ip,
+        "X-Forwarded-For": generated_ip,
+        "X-Remote-IP": generated_ip,
+        "X-Remote-Addr": generated_ip,
+        "X-Client-IP": generated_ip,
+        "X-Host": generated_ip,
+        "X-Forwared-Host": generated_ip
+    }
+    r = rq.post(
+        "https://tineye.com/result_json/?sort=score&order=desc", headers=_headers, files={"image": imageFile})
+    return r.json()
 
 
 def spell_check(query):
     spell = Speller(lang="en")
     return " ".join(map(spell, query.split(" ")))
 
-
-headers = {
-    "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36"}
 
 app = Flask(__name__)
 
@@ -74,7 +96,7 @@ def secure_image():
         resp = rq.get(request.args.get("w"))
         return Response(resp.content, content_type=resp.headers["content-type"])
     except:
-        logging.error("Image proxy failed")
+        return Response(open("static/assets/no_image.png", "rb").read(), content_type="image/png")
 
 
 @app.route("/search_engine.xml")
@@ -134,9 +156,9 @@ def api():
     if wikipedia["success"]:
         api_output["wikipedia"] = wikipedia["summary"]
     try:
-      api_output["calculated"] = simple_eval(q)
+        api_output["calculated"] = simple_eval(q)
     except:
-      pass
+        pass
     return jsonify(api_output)
 
 
@@ -172,9 +194,9 @@ def search():
     q = request.args.get("q")
     calculated = False
     try:
-      calculated = simple_eval(q)
+        calculated = simple_eval(q)
     except:
-      pass
+        pass
     page = 0
     if "p" in request.args:
         page = int(request.args.get("p"))
@@ -219,6 +241,42 @@ def image_search():
     truelen = len(results)
     results = [results[i:i+4] for i in range(0, len(results), 4)]
     return render_template("image.html", results=results, query=q, results_amount='{:,}'.format(truelen), time_took=round(time.time() - now, 2), ip=get_ip(), query_encoded=urlencode(q))
+
+
+@app.route("/rip")
+def reverse_image_search_home():
+    return render_template("reverse_image.html")
+
+
+@app.route("/ri", methods=["POST"])
+def reverse_image_search():
+    now = time.time()
+    f = request.files.get("image")
+    api = tineye(f)
+    if not api.get("matches"):
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Error</title>
+            <meta name="description" content="description"/>
+            <meta name="author" content="author" />
+            <meta name="keywords" content="keywords" />
+            <link rel="stylesheet" href="/static/css/main.css" type="text/css" />
+            <style type="text/css">.body { width: auto; }</style>
+        </head>
+        <body>
+            <h1>Error</h1>
+            <p>No matches were found, probably because of an error.</p>
+        </body>
+        </html>
+        """
+    results = [{"url": f"si?w={urlencode(i['domains'][0]['backlinks'][0]['url'])}"}
+               for i in api["matches"]]
+    truelen = len(results)
+    results = [results[i:i+4] for i in range(0, len(results), 4)]
+    return render_template("image.html", results=results, query="", results_amount='{:,}'.format(truelen), time_took=round(time.time() - now, 2), ip=get_ip(), query_encoded="")
 
 
 @app.route("/about")

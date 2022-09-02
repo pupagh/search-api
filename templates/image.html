@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{query}}</title>
+    <title>
+      {% if query %} {{query}} {% else %} [Reverse image search] {% endif %}
+    </title>
     <link
       rel="stylesheet"
       href="{{url_for('static', filename='css/main.css')}}"
@@ -35,7 +37,7 @@
         placeholder="Enter a search term"
         value="{{query}}"
       />
-      <input type="submit" value="search" class="material-icons" />
+      <input type="submit" class="search-icon material-icons" value="search" />
     </form>
     <br />
     <p id="search-details">
@@ -44,7 +46,8 @@
         href="https://codetabs.com/ip-geolocation/ip-geolocation.html?q={{ip}}"
         target="_blank"
         >{{ip}}</a
-      >, <a href="imageapi?q={{query_encoded}}&p=0" target="_blank">Open in API</a>
+      >,
+      <a href="imageapi?q={{query_encoded}}&p=0" target="_blank">Open in API</a>
     </p>
     <p id="search-types">
       <a href="s?q={{query_encoded}}&p=0">Web</a>

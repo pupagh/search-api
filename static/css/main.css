@@ -158,11 +158,14 @@ input[type="submit"] {
   background-color: var(--cta);
   color: var(--white);
   vertical-align: middle;
+  margin-top: -4px;
+  border-radius: 8px;
+}
+
+input[type="submit"].search-icon {
   font-size: 0.8rem;
   width: calc(0.8rem * 2.5);
   height: calc(0.8rem * 2.5);
-  border-radius: 8px;
-  margin-top: -3px;
 }
 
 form {

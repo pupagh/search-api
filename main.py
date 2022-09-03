@@ -281,6 +281,7 @@ def reverse_image_search():
 
 
 @app.route("/riapi", methods=["POST"])
+@cors.cross_origin()
 def reverse_image_search_api():
     now = time.time()
     f = request.files.get("image")

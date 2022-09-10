@@ -195,6 +195,11 @@ hr {
   margin-right: 0.25rem;
 }
 
+.image-filters {
+  margin-top: 16px;
+  display: inline;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background-color: var(--black);
@@ -244,8 +249,12 @@ hr {
   }
 }
 
-@media (hover: none) {
+@media screen and (max-width: 1365px) {
   #search-details {
+    display: none;
+  }
+
+  .if-spacer {
     display: none;
   }
 
@@ -255,5 +264,13 @@ hr {
 
   .result-snippet {
     width: unset;
+  }
+
+  #search-types {
+    display: none;
+  }
+
+  .image-filters {
+    display: none;
   }
 }

@@ -1,5 +1,3 @@
-from ipaddress import ip_address
-from operator import ge
 from flask import *
 import requests as rq
 from bs4 import BeautifulSoup
@@ -14,7 +12,6 @@ from simpleeval import simple_eval
 import random
 import socket
 import struct
-import io
 
 log = logging.getLogger('werkzeug')
 log.disabled = True
@@ -168,7 +165,12 @@ def api():
 def imageapi():
     now = time.time()
     q = request.args.get("q")
-    url = f"https://www.bing.com/images/search?q=%2B{urlencode(q)}&first=1&tsc=ImageHoverTitle"
+    url = f"https://www.bing.com/images/search?q=%2B{urlencode(q)}&first=1&tsc=ImageHoverTitle&qft="
+    filters = ["imagesize", "color2", "photo", "aspect", "face", "license"]
+    for filter in filters:
+        fv = request.args.get(filter)
+        if fv:
+            url += f"+filterui:{filter}-{fv}"
     res = rq.get(url, headers=headers)
     soup = BeautifulSoup(res.text, "html.parser")
     results = []
@@ -231,7 +233,12 @@ def search():
 def image_search():
     now = time.time()
     q = request.args.get("q")
-    url = f"https://www.bing.com/images/search?q=%2B{urlencode(q)}&first=1&tsc=ImageHoverTitle"
+    url = f"https://www.bing.com/images/search?q=%2B{urlencode(q)}&first=1&tsc=ImageHoverTitle&qft="
+    filters = ["imagesize", "color2", "photo", "aspect", "face", "license"]
+    for filter in filters:
+        fv = request.args.get(filter)
+        if fv:
+            url += f"+filterui:{filter}-{fv}"
     res = rq.get(url, headers=headers)
     soup = BeautifulSoup(res.text, "html.parser")
     results = []
@@ -255,7 +262,26 @@ def reverse_image_search():
     f = request.files.get("image")
     api, ip_address = tineye(f)
     if not api.get("matches"):
-        return """
+        if api.get("error"):
+            return f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <title>Error</title>
+                <meta name="description" content="description"/>
+                <meta name="author" content="author" />
+                <meta name="keywords" content="keywords" />
+                <link rel="stylesheet" href="/static/css/main.css" type="text/css" />
+            </head>
+            <body>
+                <h1>Error</h1>
+                <p>We recieved an error processing your image search.</p>
+                <p>Error: {api["error"]}</p>
+            </body>
+            </html>
+            """
+        return f"""
         <!DOCTYPE html>
         <html>
         <head>
@@ -265,11 +291,10 @@ def reverse_image_search():
             <meta name="author" content="author" />
             <meta name="keywords" content="keywords" />
             <link rel="stylesheet" href="/static/css/main.css" type="text/css" />
-            <style type="text/css">.body { width: auto; }</style>
         </head>
         <body>
-            <h1>Error</h1>
-            <p>No matches were found, probably because of an error.</p>
+            <h1>No matches!</h1>
+            <p>We found no matches. :(</p>
         </body>
         </html>
         """

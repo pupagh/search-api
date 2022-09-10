@@ -30,6 +30,7 @@
         alt="Xrch"
         id="ddg-logo-search"
     /></a>
+    {% if not classic %}
     <form action="i" style="display: inline">
       <input
         type="text"
@@ -39,7 +40,89 @@
       />
       <input type="submit" class="search-icon material-icons" value="search" />
     </form>
-    <br />
+    {% endif %} {% if classic %}
+    <form action="i" style="display: inline">
+      <input
+        type="text"
+        name="q"
+        placeholder="Enter a search term"
+        value="{{query}}"
+      />
+      <br class="if-spacer" />
+      <br class="if-spacer" />
+      <div class="image-filters">
+        <select name="imagesize" id="imagesize">
+          <option value="" disabled selected>Image Size</option>
+          <option value="">All</option>
+          <option value="small">Small</option>
+          <option value="medium">Medium</option>
+          <option value="large">Large</option>
+          <option value="wallpaper">Wallpaper</option>
+        </select>
+        <select name="color2" id="color">
+          <option value="" disabled selected>Color</option>
+          <option value="">All</option>
+          <option value="color">Full Color</option>
+          <option value="bw">Black & White</option>
+          <option value="FGcls_RED">Red</option>
+          <option value="FGcls_ORANGE">Orange</option>
+          <option value="FGcls_YELLOW">Yellow</option>
+          <option value="FGcls_GREEN">Green</option>
+          <option value="FGcls_TEAL">Teal</option>
+          <option value="FGcls_BLUE">Blue</option>
+          <option value="FGcls_PURPLE">Purple</option>
+          <option value="FGcls_PINK">Pink</option>
+          <option value="FGcls_BROWN">Brown</option>
+          <option value="FGcls_BLACK">Black</option>
+          <option value="FGcls_GRAY">Gray</option>
+          <option value="FGcls_WHITE">White</option>
+        </select>
+        <select name="photo" id="type">
+          <option value="" disabled selected>Type</option>
+          <option value="">All</option>
+          <option value="photo">Photo</option>
+          <option value="clipart">Clip Art</option>
+          <option value="linedrawing">Line Drawing</option>
+          <option value="animatedgif">GIF</option>
+          <option value="transparent">Transparent</option>
+        </select>
+        <select name="aspect" id="aspectratio">
+          <option value="" disabled selected>Aspect Ratio</option>
+          <option value="">All</option>
+          <option value="square">Square</option>
+          <option value="wide">Wide</option>
+          <option value="tall">Tall</option>
+        </select>
+        <select name="face" id="people">
+          <option value="" disabled selected>People</option>
+          <option value="">All</option>
+          <option value="face">Faces Only</option>
+          <option value="portrait">Portrait</option>
+        </select>
+        <select name="age" id="date">
+          <option value="" disabled selected>Date</option>
+          <option value="">All</option>
+          <option value="lt1440">Past Day</option>
+          <option value="lt10080">Past Week</option>
+          <option value="lt43200">Past Month</option>
+          <option value="lt525600">Past Year</option>
+        </select>
+        <select name="license" id="license">
+          <option value="" disabled selected>License</option>
+          <option value="">All</option>
+          <option value="any">Creative Commons</option>
+          <option value="L1">Public Domain</option>
+          <option value="L2_L3_L4_L5_L6_L7">Free to share and use</option>
+          <option value="L2_L3_L4">Free to share and use commercially</option>
+          <option value="L2_L3_L5_L6">Free to modify, share, and use</option>
+          <option value="L2_L3">
+            Free to modify, share, and use commercially
+          </option>
+        </select>
+      </div>
+      <input type="submit" class="search-icon material-icons" value="search" />
+    </form>
+    {% endif %}
     <!-- prettier-ignore -->
     <p id="search-details">
       About {{results_amount}} results, took {{time_took}}s, sent via

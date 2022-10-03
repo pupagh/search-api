@@ -20,18 +20,26 @@ headers = {
     "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36"}
 
 
-def tineye(imageFile):
-    generated_ip = socket.inet_ntoa(
-        struct.pack('>I', random.randint(1, 0xffffffff)))
-    _headers = {**headers, **{
+def generate_ip():
+    return socket.inet_ntoa(
+        struct.pack('>I', random.randint(0x1c000000, 0x1effffff)))
+
+
+def ip_headers(generated_ip):
+    return {
         "X-Originating-IP": generated_ip,
         "X-Forwarded-For": generated_ip,
         "X-Remote-IP": generated_ip,
         "X-Remote-Addr": generated_ip,
         "X-Client-IP": generated_ip,
         "X-Host": generated_ip,
-        "X-Forwared-Host": generated_ip
-    }}
+        "X-Forwarded-Host": generated_ip
+    }
+
+
+def tineye(imageFile):
+    generated_ip = generate_ip()
+    _headers = {**headers, **ip_headers(generated_ip)}
     r = rq.post(
         "https://tineye.com/result_json/?sort=score&order=desc", headers=_headers, files={"image": imageFile})
     return (r.json(), generated_ip)
@@ -107,6 +115,7 @@ def search_engine():
 @app.route("/api")
 @cors.cross_origin()
 def api():
+    _headers = {**headers, **ip_headers(generate_ip())}
     now = time.time()
     q = request.args.get("q")
     page = 0
@@ -114,7 +123,7 @@ def api():
         page = int(request.args.get("p"))
     page_as_first = page * 10 + 1
     url = f"https://www.bing.com/search?q=%2B{urlencode(q)}&first={page_as_first}"
-    res = rq.get(url, headers=headers)
+    res = rq.get(url, headers=_headers)
     soup = BeautifulSoup(res.text, "html.parser")
     results2 = []
     corrected = spell_check(q)
@@ -163,15 +172,16 @@ def api():
 @app.route("/imageapi")
 @cors.cross_origin()
 def imageapi():
+    _headers = {**headers, **ip_headers(generate_ip())}
     now = time.time()
     q = request.args.get("q")
-    url = f"https://www.bing.com/images/search?q=%2B{urlencode(q)}&first=1&tsc=ImageHoverTitle&qft="
+    url = f"https://www.bing.com/images/search?q=%2B{urlencode(q)}&qft="
     filters = ["imagesize", "color2", "photo", "aspect", "face", "license"]
     for filter in filters:
         fv = request.args.get(filter)
         if fv:
             url += f"+filterui:{filter}-{fv}"
-    res = rq.get(url, headers=headers)
+    res = rq.get(url, headers=_headers)
     soup = BeautifulSoup(res.text, "html.parser")
     results = []
     for result in soup.find_all("a", class_="iusc"):
@@ -193,6 +203,7 @@ def imageapi():
 
 @app.route("/s")
 def search():
+    _headers = {**headers, **ip_headers(generate_ip())}
     now = time.time()
     q = request.args.get("q")
     calculated = False
@@ -207,7 +218,7 @@ def search():
     url = f"https://www.bing.com/search?q=%2B{urlencode(q)}&first={page_as_first}"
     corrected = spell_check(q)
     misspelled = corrected != q
-    res = rq.get(url, headers=headers)
+    res = rq.get(url, headers=_headers)
     soup = BeautifulSoup(res.text, "html.parser")
     results2 = []
     for link in soup.find_all("li", class_="b_algo"):
@@ -231,6 +242,7 @@ def search():
 
 @app.route("/i")
 def image_search():
+    _headers = {**headers, **ip_headers(generate_ip())}
     now = time.time()
     q = request.args.get("q")
     url = f"https://www.bing.com/images/search?q=%2B{urlencode(q)}&first=1&tsc=ImageHoverTitle&qft="
@@ -239,7 +251,7 @@ def image_search():
         fv = request.args.get(filter)
         if fv:
             url += f"+filterui:{filter}-{fv}"
-    res = rq.get(url, headers=headers)
+    res = rq.get(url, headers=_headers)
     soup = BeautifulSoup(res.text, "html.parser")
     results = []
     for result in soup.find_all("a", class_="iusc"):

@@ -6,3 +6,4 @@ flask_cors
 wikipedia
 autocorrect
 simpleeval
+flask-compress

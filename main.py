@@ -12,6 +12,7 @@ from simpleeval import simple_eval
 import random
 import socket
 import struct
+from flask_compress import Compress
 
 log = logging.getLogger('werkzeug')
 log.disabled = True
@@ -51,7 +52,7 @@ def spell_check(query):
 
 
 app = Flask(__name__)
-
+Compress(app)
 
 def favicon(url):
     return f"si?w=" + urlencode(f"https://www.google.com/s2/favicons?domain={urlparse(url).netloc}")

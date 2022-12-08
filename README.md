@@ -1,6 +1,6 @@
-# Pupa
+# Search
 
-Pupa is a simple alternative to DuckDuckGo.
+Search is a simple alternative to DuckDuckGo, Bing, Qwant, etc.
 
 ## How-to self host
 

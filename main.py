@@ -92,6 +92,7 @@ def api():
     if "p" in request.args:
         page = int(request.args["page"])
     page_as_first = page * 10 + 1
+    print(page_as_first)
     url = f"https://www.bing.com/search?q=%2B{urlencode(q)}&first={page_as_first}"
     res = rq.get(url, headers=_headers)
     soup = BeautifulSoup(res.text, "html.parser")
